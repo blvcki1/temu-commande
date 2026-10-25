@@ -1,0 +1,12 @@
+{
+  "name": "temu-panier-validation",
+  "version": "1.0.0",
+  "description": "Plateforme Panier et Validation de Commande TEMU (Whaleco Tech Ireland)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["temu", "e-commerce", "order-validation"],
+  "author": "",
+  "license": "ISC"
+}

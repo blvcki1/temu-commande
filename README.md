@@ -42,10 +42,10 @@ Plateforme e-commerce interactive reproduisant fidèlement le design et le déro
 ## 🚀 Lancement Local
 Pour démarrer ou redémarrer le serveur local :
 ```bash
-python -m http.server 3000
+python -m http.server 8181
 ```
-Puis ouvrir l'URL suivante dans un navigateur :
-`http://localhost:3000`
+Puis ouvrir l'URL suivante dans votre navigateur :
+`http://localhost:8181`
 
 ---
 

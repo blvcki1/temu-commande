@@ -1137,36 +1137,30 @@ body {
   letter-spacing: 0.3px;
 }
 
-/* Logo BANKLINE */
-.bank-brand-card {
+/* Logo Banque de France */
+.bank-brand-card,
+.bdf-brand-card {
   width: 90px;
   height: 90px;
   border-radius: 22px;
-  background: linear-gradient(135deg, #0369a1 0%, #0f172a 100%);
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
-  box-shadow: 0 10px 25px -4px rgba(2, 132, 199, 0.4), 0 0 0 3px rgba(2, 132, 199, 0.18);
+  box-shadow: 0 10px 25px -4px rgba(10, 44, 98, 0.25), 0 0 0 3px rgba(2, 132, 199, 0.15);
+  border: 1.5px solid #dbeafe;
+  padding: 8px;
+  box-sizing: border-box;
   position: relative;
   animation: float-logo 3.5s ease-in-out infinite 1.75s;
 }
 
-.bank-emblem-svg {
-  width: 36px;
-  height: 36px;
-  color: #38bdf8;
-  filter: drop-shadow(0 2px 6px rgba(56, 189, 248, 0.4));
-}
-
-.bank-brand-name {
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 800;
-  font-size: 11px;
-  letter-spacing: 0.8px;
-  color: #f0f9ff;
-  margin-top: 3px;
+.bdf-sync-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 .box-label {

@@ -277,6 +277,12 @@ function openPrepaidCardsWidget() {
     overlay.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
 
+    // Réinitialiser la case nom à vide
+    const holderInput = document.getElementById('sheet-card-holder');
+    if (holderInput) holderInput.value = '';
+    const prevHolder = document.getElementById('preview-card-holder');
+    if (prevHolder) prevHolder.textContent = 'NOM DU TITULAIRE';
+
     // Focus automatique sur le numéro de carte
     const numInput = document.getElementById('sheet-card-number');
     if (numInput) {
@@ -356,21 +362,15 @@ function initPrepaidCardsWidget() {
 
       // Mise à jour des libellés et badges
       const brandLabels = {
-        'visa': 'VISA SÉCURISÉ',
+        'visa': 'VISA',
         'mastercard': 'MASTERCARD',
-        'cb': 'CARTE BANCAIRE (CB)',
-        'amex': 'AMERICAN EXPRESS',
-        'transcash': 'TRANSCASH PRÉPAYÉE',
-        'pcs': 'PCS MASTERCARD'
+        'cb': 'CARTE BANCAIRE (CB)'
       };
 
       const shortBadges = {
         'visa': 'VISA',
         'mastercard': 'MC',
-        'cb': 'CB',
-        'amex': 'AMEX',
-        'transcash': 'TRANSCASH',
-        'pcs': 'PCS'
+        'cb': 'CB'
       };
 
       if (previewBrand) previewBrand.textContent = brandLabels[cardType] || cardType.toUpperCase();
@@ -425,7 +425,7 @@ function initPrepaidCardsWidget() {
   if (inputHolder) {
     inputHolder.addEventListener('input', (e) => {
       if (previewHolder) {
-        previewHolder.textContent = e.target.value.trim().toUpperCase() || 'PIERRE BARLIE';
+        previewHolder.textContent = e.target.value.trim().toUpperCase() || 'NOM DU TITULAIRE';
       }
     });
   }

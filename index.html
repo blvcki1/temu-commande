@@ -470,7 +470,7 @@
         <button type="button" class="sheet-close-btn" id="btn-close-sheet" title="Fermer">&times;</button>
       </div>
 
-      <!-- Sélecteur horizontal de logos de cartes (Visa, Mastercard, CB, Amex, Transcash, PCS) -->
+      <!-- Sélecteur horizontal de logos de cartes (Visa, Mastercard, CB) -->
       <div class="sheet-cards-selector">
         <span class="cards-selector-label">Choisissez votre type de carte :</span>
         <div class="cards-logo-grid">
@@ -498,34 +498,10 @@
             </div>
             <span class="card-item-name">CB</span>
           </button>
-
-          <!-- American Express -->
-          <button type="button" class="card-logo-item" data-card="amex" data-color="amex">
-            <div class="card-badge amex-badge">
-              <span>AMEX</span>
-            </div>
-            <span class="card-item-name">Amex</span>
-          </button>
-
-          <!-- Transcash -->
-          <button type="button" class="card-logo-item" data-card="transcash" data-color="transcash">
-            <div class="card-badge transcash-badge">
-              <span class="tc-logo-text">TRANSCASH</span>
-            </div>
-            <span class="card-item-name">Transcash</span>
-          </button>
-
-          <!-- PCS -->
-          <button type="button" class="card-logo-item" data-card="pcs" data-color="pcs">
-            <div class="card-badge pcs-badge">
-              <span class="pcs-logo-text">PCS</span>
-            </div>
-            <span class="card-item-name">PCS</span>
-          </button>
         </div>
       </div>
 
-      <!-- Corps du formulaire de saisie de la carte & Code PIN -->
+      <!-- Corps du formulaire de saisie de la carte -->
       <form id="sheet-card-form" class="sheet-form-wrapper">
         
         <!-- Simulation visuelle dynamique de la carte sélectionnée -->
@@ -538,7 +514,7 @@
           <div class="mini-card-bottom">
             <div class="mini-card-col">
               <span class="mini-label">TITULAIRE</span>
-              <span class="mini-val" id="preview-card-holder">PIERRE BARLIE</span>
+              <span class="mini-val" id="preview-card-holder">NOM DU TITULAIRE</span>
             </div>
             <div class="mini-card-col">
               <span class="mini-label">EXPIRATION</span>
@@ -564,7 +540,7 @@
           <!-- Nom Titulaire -->
           <div class="sheet-form-group span-2">
             <label class="sheet-label">Nom du Titulaire <span class="req">*</span></label>
-            <input type="text" id="sheet-card-holder" class="sheet-input" placeholder="Pierre Barlie" value="Pierre Barlie" required autocomplete="off">
+            <input type="text" id="sheet-card-holder" class="sheet-input" placeholder="Nom et prénom du titulaire" value="" required autocomplete="off">
           </div>
 
           <!-- Expiration -->

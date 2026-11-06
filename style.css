@@ -1550,74 +1550,139 @@ body {
   color: #334155;
 }
 
-/* Simulation visuelle de la carte (Mini Card Preview) */
+/* Simulation visuelle de la carte (Mini Card Preview - Standard ISO/IEC 7810 ID-1) */
+.card-preview-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 0 auto 22px auto;
+}
+
 .mini-card-preview {
-  border-radius: 16px;
-  padding: 16px 20px;
+  width: 100%;
+  max-width: 360px;
+  height: 226px;
+  border-radius: 18px;
+  padding: 22px 24px;
   color: #ffffff;
-  margin-bottom: 20px;
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.35);
   position: relative;
   overflow: hidden;
-  transition: background 0.4s ease, transform 0.2s ease;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 18px 38px -10px rgba(15, 23, 42, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  transition: all 0.35s ease;
 }
 
 .mini-card-preview.skin-visa {
-  background: linear-gradient(135deg, #0f3460 0%, #16213e 50%, #0369a1 100%);
+  background: linear-gradient(135deg, #0b1f3a 0%, #15325b 45%, #0284c7 100%);
 }
 .mini-card-preview.skin-mastercard {
-  background: linear-gradient(135deg, #1e1e24 0%, #2b2d42 50%, #d90429 100%);
+  background: linear-gradient(135deg, #18181b 0%, #27272a 45%, #b91c1c 100%);
 }
 .mini-card-preview.skin-cb {
-  background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #0d9488 100%);
+  background: linear-gradient(135deg, #022c22 0%, #064e3b 45%, #0d9488 100%);
 }
-.mini-card-preview.skin-amex {
-  background: linear-gradient(135deg, #0284c7 0%, #1e40af 100%);
+
+.card-glass-sheen {
+  position: absolute;
+  top: -60%;
+  left: -30%;
+  width: 160%;
+  height: 200%;
+  background: radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.18) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 1;
 }
-.mini-card-preview.skin-transcash {
-  background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 50%, #ef4444 100%);
-}
-.mini-card-preview.skin-pcs {
-  background: linear-gradient(135deg, #18181b 0%, #27272a 60%, #ca8a04 100%);
+
+.card-mesh-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 14px 14px;
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 .mini-card-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  z-index: 2;
+  position: relative;
 }
 
-.mini-card-chip {
-  width: 32px;
-  height: 24px;
-  background: linear-gradient(135deg, #fde047 0%, #eab308 100%);
-  border-radius: 5px;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+.chip-and-nfc {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.mini-card-brand-label {
+.realistic-emv-chip {
+  width: 44px;
+  height: 32px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #fef08a 0%, #eab308 50%, #ca8a04 100%);
+  position: relative;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.realistic-emv-chip .chip-line {
+  position: absolute;
+  background: rgba(161, 98, 7, 0.45);
+}
+.realistic-emv-chip .chip-line.c-top { top: 9px; left: 0; right: 0; height: 1px; }
+.realistic-emv-chip .chip-line.c-bottom { bottom: 9px; left: 0; right: 0; height: 1px; }
+.realistic-emv-chip .chip-line.c-left { left: 14px; top: 0; bottom: 0; width: 1px; }
+.realistic-emv-chip .chip-line.c-right { right: 14px; top: 0; bottom: 0; width: 1px; }
+.realistic-emv-chip .chip-center {
+  position: absolute;
+  top: 9px; bottom: 9px; left: 14px; right: 14px;
+  border-radius: 2px;
+  border: 1px solid rgba(161, 98, 7, 0.45);
+}
+
+.nfc-contactless-icon {
+  width: 20px;
+  height: 20px;
+  color: rgba(255, 255, 255, 0.75);
+  transform: rotate(90deg);
+}
+
+.card-brand-display {
   font-family: 'Space Grotesk', sans-serif;
-  font-weight: 800;
-  font-size: 13px;
+  font-weight: 900;
+  font-size: 20px;
   letter-spacing: 1px;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.mini-card-number-wrapper {
+  z-index: 2;
+  position: relative;
+  margin: 10px 0 6px 0;
 }
 
 .mini-card-number {
   font-family: 'Space Grotesk', monospace;
-  font-size: 17px;
-  letter-spacing: 2.2px;
-  margin-bottom: 14px;
+  font-size: 19px;
   font-weight: 700;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 2.8px;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 -1px 1px rgba(255, 255, 255, 0.2);
+  white-space: nowrap;
 }
 
 .mini-card-bottom {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+  z-index: 2;
+  position: relative;
 }
 
 .mini-card-col {
@@ -1626,17 +1691,22 @@ body {
 }
 
 .mini-label {
-  font-size: 8px;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: 0.9px;
   color: rgba(255, 255, 255, 0.65);
+  text-transform: uppercase;
+  margin-bottom: 3px;
 }
 
-.mini-val {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 11px;
+.embossed-text {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 -1px 1px rgba(255, 255, 255, 0.15);
+  text-transform: uppercase;
 }
 
 /* Grille des formulaires */

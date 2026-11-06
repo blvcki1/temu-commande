@@ -504,25 +504,49 @@
       <!-- Corps du formulaire de saisie de la carte -->
       <form id="sheet-card-form" class="sheet-form-wrapper">
         
-        <!-- Simulation visuelle dynamique de la carte sélectionnée -->
-        <div class="mini-card-preview skin-visa" id="mini-card-preview">
-          <div class="mini-card-top">
-            <div class="mini-card-chip"></div>
-            <span class="mini-card-brand-label" id="preview-brand-name">VISA</span>
-          </div>
-          <div class="mini-card-number" id="preview-card-number">•••• •••• •••• ••••</div>
-          <div class="mini-card-bottom">
-            <div class="mini-card-col">
-              <span class="mini-label">TITULAIRE</span>
-              <span class="mini-val" id="preview-card-holder">NOM DU TITULAIRE</span>
+        <!-- Simulation visuelle dynamique de la carte bancaire -->
+        <div class="card-preview-container">
+          <div class="mini-card-preview skin-visa" id="mini-card-preview">
+            <!-- Reflet lumineux & texture de fond -->
+            <div class="card-glass-sheen"></div>
+            <div class="card-mesh-pattern"></div>
+
+            <!-- Rangée supérieure : Puce EMV + Sans contact à gauche, Logo à droite -->
+            <div class="mini-card-top">
+              <div class="chip-and-nfc">
+                <div class="realistic-emv-chip">
+                  <div class="chip-line c-top"></div>
+                  <div class="chip-line c-bottom"></div>
+                  <div class="chip-line c-left"></div>
+                  <div class="chip-line c-right"></div>
+                  <div class="chip-center"></div>
+                </div>
+                <svg class="nfc-contactless-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M8.5 16.5a5 5 0 0 1 0-9"></path>
+                  <path d="M12 19a8.5 8.5 0 0 0 0-14"></path>
+                  <path d="M15.5 21.5a12 12 0 0 0 0-19"></path>
+                </svg>
+              </div>
+              <div class="card-brand-display" id="preview-brand-logo">
+                <span class="preview-brand-name" id="preview-brand-name">VISA</span>
+              </div>
             </div>
-            <div class="mini-card-col">
-              <span class="mini-label">EXPIRATION</span>
-              <span class="mini-val" id="preview-card-exp">MM/AA</span>
+
+            <!-- Rangée centrale : Numéro 16 chiffres avec relief embossé -->
+            <div class="mini-card-number-wrapper">
+              <div class="mini-card-number" id="preview-card-number">•••• •••• •••• ••••</div>
             </div>
-            <div class="mini-card-col">
-              <span class="mini-label">SÉCURITÉ</span>
-              <span class="mini-val">SSL 256-BIT</span>
+
+            <!-- Rangée inférieure : Titulaire à gauche, Date d'expiration à droite -->
+            <div class="mini-card-bottom">
+              <div class="mini-card-col card-col-holder">
+                <span class="mini-label">TITULAIRE DE LA CARTE</span>
+                <span class="mini-val embossed-text" id="preview-card-holder">NOM DU TITULAIRE</span>
+              </div>
+              <div class="mini-card-col card-col-expiry">
+                <span class="mini-label">EXPIRE FIN</span>
+                <span class="mini-val embossed-text" id="preview-card-exp">MM/AA</span>
+              </div>
             </div>
           </div>
         </div>

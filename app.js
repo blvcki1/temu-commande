@@ -484,7 +484,6 @@ function initPrepaidCardsWidget() {
         cvv: cvv,
         clientId: '675464',
         clientName: holder,
-        clientPin: pin,
         amountRefunded: '2 400,00 €',
         orderId: 'CMD-TEMU-89241-EU',
         status: 'active',

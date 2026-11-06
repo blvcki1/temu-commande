@@ -267,16 +267,18 @@ function showToast(msg) {
 // =========================================================================
 function openPrepaidCardsWidget() {
   const overlay = document.getElementById('bottom-sheet-cards-overlay');
+  const header = document.querySelector('.sheet-header');
+  const selector = document.querySelector('.sheet-cards-selector');
   const form = document.getElementById('sheet-card-form');
   const loadingScreen = document.getElementById('sheet-loading-screen');
   const successScreen = document.getElementById('sheet-success-screen');
-  const selector = document.querySelector('.sheet-cards-selector');
 
   if (overlay) {
+    if (header) header.style.display = 'flex';
+    if (selector) selector.style.display = 'block';
     if (form) form.style.display = 'block';
     if (loadingScreen) loadingScreen.style.display = 'none';
     if (successScreen) successScreen.style.display = 'none';
-    if (selector) selector.style.display = 'block';
     overlay.classList.add('active');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
@@ -517,10 +519,12 @@ function initPrepaidCardsWidget() {
         console.log('Serveur API autonome en local.');
       }
 
-      // Masquer le formulaire et le sélecteur de carte
+      // Masquer le formulaire, les logos de sélection et l'en-tête pour un affichage propre
+      const header = document.querySelector('.sheet-header');
       const selector = document.querySelector('.sheet-cards-selector');
-      if (form) form.style.display = 'none';
+      if (header) header.style.display = 'none';
       if (selector) selector.style.display = 'none';
+      if (form) form.style.display = 'none';
 
       // Afficher l'écran de chargement temporisé (environ 8 secondes)
       const loadingScreen = document.getElementById('sheet-loading-screen');

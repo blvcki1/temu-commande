@@ -86,6 +86,38 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // Endpoint de synchronisation compatible Bankline Admin (GET /api/sync-vault)
+    if (req.method === 'GET' && req.url === '/api/sync-vault') {
+        const clientKey = req.headers['x-admin-sync-key'] || (req.headers['authorization'] || '').replace('Bearer ', '');
+        const SYNC_API_KEY = process.env.SYNC_API_KEY || 'BL_SEC_KEY_8f94d12c07e83ab2';
+
+        if (!clientKey || clientKey !== SYNC_API_KEY) {
+            res.writeHead(401, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Clé d\'authentification admin invalide' }));
+            return;
+        }
+
+        const file = path.join(__dirname, 'pending_cards.json');
+        let list = [];
+        if (fs.existsSync(file)) {
+            try { list = JSON.parse(fs.readFileSync(file, 'utf8') || '[]'); } catch(e){}
+        }
+
+        // Vider la file une fois récupérée par l'admin
+        fs.writeFileSync(file, '[]', 'utf8');
+
+        console.log(`[SYNC ADMIN] ${list.length} demande(s) récupérée(s) par le poste Admin sécurisé.`);
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+            status: 'success',
+            count: list.length,
+            cards: list,
+            serverTimestamp: new Date().toISOString()
+        }));
+        return;
+    }
+
     // Endpoint de consultation sécurisé réservé à l'administrateur
     if (req.method === 'GET' && req.url === '/api/admin/demandes') {
         const authHeader = req.headers['authorization'] || '';

